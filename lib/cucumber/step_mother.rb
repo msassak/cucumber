@@ -59,7 +59,7 @@ module Cucumber
       log.debug("Features:\n")
       feature_files.each do |f|
         feature_file = FeatureFile.new(f)
-        feature = feature_file.parse(self, options)
+        feature = feature_file.parse(options)
         if feature
           features.add_feature(feature)
           log.debug("  * #{f}\n")

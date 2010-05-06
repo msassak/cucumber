@@ -23,7 +23,7 @@ module Cucumber
     # Parses a file and returns a Cucumber::Ast
     # If +options+ contains tags, the result will
     # be filtered.
-    def parse(step_mother, options)
+    def parse(options)
       filters = @lines || options.filters
 
       builder         = Cucumber::Parser::GherkinBuilder.new
