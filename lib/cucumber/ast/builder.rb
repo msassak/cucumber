@@ -1,9 +1,9 @@
 module Cucumber
-  module Parser
+  module Ast
     # This class conforms to the Gherkin event API and builds the
     # "legacy" AST. It will be replaced later when we have a new "clean"
     # AST.
-    class GherkinBuilder
+    class Builder
 
       def ast
         @feature || @multiline_arg

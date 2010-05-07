@@ -25,7 +25,7 @@ module Cucumber
     def parse(options)
       filters = @lines || options.filters
 
-      builder         = Cucumber::Parser::GherkinBuilder.new
+      builder         = Cucumber::Ast::Builder.new
       filter_listener = Gherkin::Parser::FilterListener.new(builder, filters)
       parser          = Gherkin::Parser::Parser.new(filter_listener, true, "root")
       lexer           = Gherkin::I18nLexer.new(parser, false)
