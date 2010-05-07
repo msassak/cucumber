@@ -7,7 +7,6 @@ end
 require 'optparse'
 require 'cucumber'
 require 'logger'
-require 'cucumber/parser'
 require 'cucumber/formatter/color_io'
 require 'cucumber/cli/configuration'
 require 'cucumber/cli/drb_client'
@@ -37,7 +36,7 @@ module Cucumber
         @configuration = nil
       end
 
-      def execute!(step_mother)
+      def execute!(step_mother, resource_loader = ResourceLoader.new)
         trap_interrupt
         if configuration.drb?
           begin
@@ -49,9 +48,14 @@ module Cucumber
         step_mother.options = configuration.options
         step_mother.log = configuration.log
 
+        resource_loader.options = configuration.options
+        resource_loader.log = configuration.log
+
         step_mother.load_code_files(configuration.support_to_load)
         step_mother.after_configuration(configuration)
-        features = step_mother.load_plain_text_features(configuration.feature_files)
+
+        features = resource_loader.load_resources(configuration.feature_files)
+
         step_mother.load_code_files(configuration.step_defs_to_load)
 
         enable_diffing

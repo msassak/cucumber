@@ -1,9 +1,7 @@
 require 'cucumber/constantize'
 require 'cucumber/core_ext/instance_exec'
 require 'cucumber/language_support/language_methods'
-require 'cucumber/formatter/duration'
 require 'cucumber/cli/options'
-require 'cucumber/feature_file'
 require 'timeout'
 
 module Cucumber
@@ -43,7 +41,6 @@ module Cucumber
   # This is the meaty part of Cucumber that ties everything together.
   class StepMother
     include Constantize
-    include Formatter::Duration
     attr_writer :options, :visitor, :log
 
     def initialize
@@ -51,24 +48,6 @@ module Cucumber
       @programming_languages = []
       @language_map = {}
       @current_scenario = nil
-    end
-
-    def load_plain_text_features(feature_files)
-      features = Ast::Features.new
-
-      start = Time.new
-      log.debug("Features:\n")
-      feature_files.each do |f|
-        feature_file = FeatureFile.new(f)
-        feature = feature_file.parse(options)
-        if feature
-          features.add_feature(feature)
-          log.debug("  * #{f}\n")
-        end
-      end
-      duration = Time.now - start
-      log.debug("Parsing feature files took #{format_duration(duration)}\n\n")
-      features
     end
 
     def load_code_files(step_def_files)

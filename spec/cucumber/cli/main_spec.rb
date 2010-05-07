@@ -57,6 +57,7 @@ module Cucumber
         it "should load files and execute hooks in order" do
           Configuration.stub!(:new).and_return(configuration = mock('configuration', :null_object => true))
           step_mother = mock('step mother', :null_object => true)
+          resource_loader = mock('resource_loader', :null_object => true)
           configuration.stub!(:drb?).and_return false
           cli = Main.new(%w{--verbose example.feature}, @out)
           cli.stub!(:require)
@@ -74,10 +75,10 @@ module Cucumber
           # This is because i18n step methods are only aliased when
           # features are loaded. If we swap the order, the requires
           # will fail.
-          step_mother.should_receive(:load_plain_text_features).ordered
+          resource_loader.should_receive(:load_resources)
           step_mother.should_receive(:load_code_files).with(['step defs']).ordered
 
-          cli.execute!(step_mother)
+          cli.execute!(step_mother, resource_loader)
         end
         
       end

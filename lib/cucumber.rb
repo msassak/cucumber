@@ -4,6 +4,7 @@ $:.unshift(File.dirname(__FILE__)) unless
 require 'yaml'
 require 'cucumber/platform'
 require 'cucumber/ast'
+require 'cucumber/resource_loader'
 require 'cucumber/step_mother'
 require 'cucumber/cli/main'
 require 'cucumber/broadcaster'
