@@ -3,6 +3,7 @@ require 'cucumber/core_ext/instance_exec'
 require 'cucumber/language_support/language_methods'
 require 'cucumber/formatter/duration'
 require 'cucumber/cli/options'
+require 'cucumber/feature_file'
 require 'timeout'
 
 module Cucumber
