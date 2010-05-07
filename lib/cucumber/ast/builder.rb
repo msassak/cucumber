@@ -1,5 +1,3 @@
-require 'cucumber/ast'
-
 module Cucumber
   module Parser
     # This class conforms to the Gherkin event API and builds the

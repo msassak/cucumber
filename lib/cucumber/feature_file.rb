@@ -1,4 +1,3 @@
-require 'cucumber/parser/gherkin_builder'
 require 'gherkin/parser/filter_listener'
 require 'gherkin/parser/parser'
 require 'gherkin/i18n_lexer'

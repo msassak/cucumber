@@ -1,3 +1,4 @@
+require 'cucumber/ast/builder'
 require 'cucumber/ast/comment'
 require 'cucumber/ast/features'
 require 'cucumber/ast/feature'
