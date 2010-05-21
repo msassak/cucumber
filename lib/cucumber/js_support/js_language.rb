@@ -58,12 +58,12 @@ module Cucumber
     end
 
     class JsHook
-      def initialize(js_language, tag_names, js_function)
-        @js_language, @tag_names, @js_function = js_language, tag_names, js_function
+      def initialize(js_language, tag_expressions, js_function)
+        @js_language, @tag_expressions, @js_function = js_language, tag_expressions, js_function
       end
 
       def tag_expressions
-        @tag_names
+        @tag_expressions
       end
 
       def invoke(location, scenario)
@@ -145,10 +145,8 @@ module Cucumber
         @step_mother.step_match(name).invoke(multiline_argument)
       end
 
-      #TODO: support multiple tag_names
-      def register_js_hook(phase, js_function, tag_name = nil)
-        tag_names = tag_name ? [tag_name] : []
-        add_hook(phase, JsHook.new(self, tag_names, js_function))
+      def register_js_hook(phase, tag_expressions, js_function)
+        add_hook(phase, JsHook.new(self, tag_expressions, js_function))
       end
 
       def register_js_transform(regexp, js_function)
