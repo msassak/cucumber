@@ -1,7 +1,7 @@
-Feature: Load resources from different sources
-  In order to make it easy to load resources from anywhere they may be found
+Feature: Load resources from different places
+  In order to run features from wherever they are located
   As a cucumber developer
-  I want a way to use resource loaders and write my own
+  I want many ways to load resources
 
   Background:
     Given a standard Cucumber project directory structure
