@@ -44,7 +44,7 @@ Feature: Load resources from different places
 
       """
 
-  @wip @resource_server
+  @resource_server
   Scenario: Many resources via HTTP
     Given an http server on localhost:22225 is serving the contents of the features directory
     When I run cucumber --dry-run -f progress @http://localhost:22225/features/feature.list

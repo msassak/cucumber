@@ -1,5 +1,6 @@
 require 'cucumber/feature_file'
 require 'cucumber/formatter/duration'
+require 'open-uri'
 
 module Cucumber
   class ResourceLoader
@@ -7,11 +8,14 @@ module Cucumber
     attr_accessor :log, :options
 
     def load_resources(feature_files)
+      lists, singletons = feature_files.partition{ |res| res =~ /^@/ }
+      singletons += lists.collect{ |list| open(list.gsub(/^@/, '')).readlines}.flatten
+
       features = Ast::Features.new
 
       start = Time.new
       log.debug("Features:\n")
-      feature_files.each do |f|
+      singletons.each do |f|
         feature_file = FeatureFile.new(f)
         feature = feature_file.parse(options)
         if feature
