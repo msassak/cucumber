@@ -56,3 +56,35 @@ Feature: Load resources from different places
       4 steps (4 undefined)
 
       """
+
+  @resource_server @wip
+  Scenario: Loading resources via a plugin
+    Given a fakeproto server on localhost:22225 is serving the contents of the features directory
+    And a file named "features/support/fake_proto_plugin.rb" with:
+      """
+      require 'open-uri'
+
+      module Cucumber::Plugins
+        class MyLoaderPlugin
+          class << self
+            def protocols
+              [:fakeproto]
+            end
+          end
+
+          def read(uri)
+            uri.gsub!(/^fakeproto/, 'http')
+            open(uri).read
+          end
+        end
+      end
+      """
+    When I run cucumber --dry-run -f progress --plugin features/support/fake_proto_plugin.rb fakeproto://localhost:22225/features/remote_1.feature
+    Then it should pass with
+      """
+      UU
+
+      1 scenario (1 undefined)
+      2 steps (2 undefined)
+
+      """
