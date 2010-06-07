@@ -51,6 +51,8 @@ module Cucumber
         resource_loader.options = configuration.options
         resource_loader.log = configuration.log
 
+        configuration.require_plugins
+
         step_mother.load_code_files(configuration.support_to_load)
         step_mother.after_configuration(configuration)
 

@@ -252,6 +252,9 @@ module Cucumber
           opts.on("--port PORT", "Specify DRb port.  Ignored without --drb") do |port|
             @options[:drb_port] = port
           end
+          opts.on("--plugin PATH", "Require plugin at PATH.") do |plugin|
+            @options[:plugins] << plugin
+          end
           opts.on_tail("--version", "Show version.") do
             @out_stream.puts Cucumber::VERSION
             Kernel.exit(0)
@@ -400,7 +403,8 @@ module Cucumber
           :tag_expressions  => [],
           :name_regexps => [],
           :env_vars     => {},
-          :diff_enabled => true
+          :diff_enabled => true,
+          :plugins      => []
         }
       end
     end

@@ -126,6 +126,10 @@ module Cucumber
         logger
       end
 
+      def require_plugins
+        @options[:plugins].each{|path| require path}
+      end
+
     private
     
       def formatters(step_mother)
