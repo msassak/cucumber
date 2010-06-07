@@ -104,6 +104,7 @@ module Cucumber
 
           @cli = Main.new(@args, @out, @err)
           @step_mother = mock('StepMother', :null_object => true)
+          @resource_loader = mock('ResourceLoader', :null_object => true)
         end
 
         it "delegates the execution to the DRB client passing the args and streams" do
@@ -123,11 +124,11 @@ module Cucumber
           @cli.execute!(@step_mother)
         end
 
-        context "when the DrbClient is unable to perfrom the execution" do
+        context "when the DrbClient is unable to perform the execution" do
           before { DRbClient.stub!(:run).and_raise(DRbClientError.new('error message.')) }
 
           it "alerts the user that execution will be performed locally" do
-            @cli.execute!(@step_mother)
+            @cli.execute!(@step_mother, @resource_loader)
             @err.string.should include("WARNING: error message. Running features locally:")
           end
 
