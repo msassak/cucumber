@@ -23,7 +23,7 @@ module Cucumber
       singletons.each do |f|
         _, path, lines = *parse_uri(f)
         content = source(f)
-        feature = FeatureFile.new.parse(content, path, lines, options)
+        feature = GherkinParser.new.parse(content, path, lines, options)
         if feature
           features.add_feature(feature)
           log.debug("  * #{f}\n")
@@ -62,7 +62,7 @@ module Cucumber
 end
 
 module Cucumber
-  class FeatureFile
+  class GherkinParser
     # Parses a file and returns a Cucumber::Ast
     # If +options+ contains tags, the result will
     # be filtered.
