@@ -57,25 +57,25 @@ Feature: Load resources from different places
 
       """
 
-  @resource_server
+  @resource_server @wip
   Scenario: Loading resources via a plugin
     Given a fakeproto server on localhost:22225 is serving the contents of the features directory
     And a file named "features/support/fake_proto_plugin.rb" with:
       """
       require 'open-uri'
+      require 'cucumber/plugin'
 
-      module Cucumber::Plugins
-        class MyLoaderPlugin
-          class << self
-            def protocols
-              [:fakeproto]
-            end
-          end
+      class FakeProtoLoader
+        extend Cucumber::Plugin
+        register_input(self)
 
-          def read(uri)
-            uri.gsub!(/^fakeproto/, 'http')
-            open(uri).read
-          end
+        def protocols
+          [:fakeproto]
+        end
+
+        def read(uri)
+          uri.gsub!(/^fakeproto/, 'http')
+          open(uri).read
         end
       end
       """
