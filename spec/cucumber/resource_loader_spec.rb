@@ -22,8 +22,8 @@ module Cucumber
       @out = StringIO.new
       @log = Logger.new(@out)
 
-      @feature_loader = ResourceLoader.new
-      @feature_loader.log = @log
+      @resource_loader = ResourceLoader.new
+      @resource_loader.log = @log
     end
 
     def register_parser(parser, &block)
@@ -40,48 +40,48 @@ module Cucumber
         
     xit "should split the content name and line numbers from the sources" do
       @file_input.should_receive(:read).with("example.feature")
-      @feature_loader.load_feature("example.feature:10:20")
+      @resource_loader.load_feature("example.feature:10:20")
     end
     
     xit "should load a feature from a file" do
       @file_input.should_receive(:read).with("example.feature").once
-      @feature_loader.load_feature("example.feature")
+      @resource_loader.load_feature("example.feature")
     end
 
     xit "should load a feature from a file with spaces in the name" do
       @file_input.should_receive(:read).with("features/spaces are nasty.feature").once
-      @feature_loader.load_feature("features/spaces are nasty.feature")
+      @resource_loader.load_feature("features/spaces are nasty.feature")
     end
     
     xit "should load features from multiple input sources" do
       @http_input.should_receive(:read).with("http://test.domain/http.feature").once
       @file_input.should_receive(:read).with("example.feature").once
-      @feature_loader.load_features(["example.feature", "http://test.domain/http.feature"])
+      @resource_loader.load_features(["example.feature", "http://test.domain/http.feature"])
     end
     
     xit "should say it supports the protocols provided by the registered input services" do
-      @feature_loader.protocols.should include(:http, :https, :file)
+      @resource_loader.protocols.should include(:http, :https, :file)
     end
     
     xit "should raise if it has no input service for the protocol" do
       lambda {
-       @feature_loader.load_feature("accidentally://the.whole/thing.feature") 
+       @resource_loader.load_feature("accidentally://the.whole/thing.feature") 
       }.should raise_error(InputServiceNotFound, /.*'accidentally'.*Services available:.*/)
     end
 
     xit "should parse a feature written in Gherkin" do
       @gherkin_parser.should_receive(:parse).once
-      @feature_loader.load_feature("example.feature")
+      @resource_loader.load_feature("example.feature")
     end
     
     xit "should default to the Gherkin format" do
       @gherkin_parser.should_receive(:parse).once
-      @feature_loader.load_feature("jbehave.scenario")
+      @resource_loader.load_feature("jbehave.scenario")
     end
     
     xit "should assume the Gherkin format if there is no extension" do
       @gherkin_parser.should_receive(:parse).once
-      @feature_loader.load_feature("example")
+      @resource_loader.load_feature("example")
     end
     
     xit "should determine the feature format by the file extension" do
@@ -89,13 +89,13 @@ module Cucumber
       @gherkin_parser.should_receive(:parse).with(anything(), "example.feature", anything(), anything()).once
       
       register_parser(@textile_parser) do
-        @feature_loader.load_features(["example.feature", "example.textile"])
+        @resource_loader.load_features(["example.feature", "example.textile"])
       end
     end
             
     xit "should say it supports the formats parsed by a registered parser" do
       register_parser(@textile_parser) do
-        @feature_loader.formats.should include(:textile)
+        @resource_loader.formats.should include(:textile)
       end
     end
         
@@ -104,7 +104,7 @@ module Cucumber
       
       register_format_rules({/\.txt$/ => :textile}) do
         register_parser(@textile_parser) do
-          @feature_loader.load_feature("example.txt")
+          @resource_loader.load_feature("example.txt")
         end
       end
     end
@@ -115,8 +115,8 @@ module Cucumber
             
       register_format_rules({/features\/test\/\w+\.feature$/ => :textile}) do
         register_parser(@textile_parser) do
-          @feature_loader.load_feature("features/example.feature")
-          @feature_loader.load_feature("features/test/example.feature")          
+          @resource_loader.load_feature("features/example.feature")
+          @resource_loader.load_feature("features/test/example.feature")          
         end
       end
     end
@@ -124,14 +124,14 @@ module Cucumber
     xit "should raise AmbiguousFormatRules if two or more format rules match" do
       register_format_rules({/\.foo$/ => :gherkin, /.*/ => :gherkin}) do
         lambda do
-          @feature_loader.load_feature("example.foo")
+          @resource_loader.load_feature("example.foo")
         end.should raise_error(AmbiguousFormatRules)
       end
     end
     
     xit "should pull feature names from a feature list" do
       @file_input.should_receive(:list).with("my_feature_list.txt").and_return(["features/foo.feature", "features/bar.feature"])
-      @feature_loader.load_features(["@my_feature_list.txt"])
+      @resource_loader.load_features(["@my_feature_list.txt"])
     end
   end
 end
