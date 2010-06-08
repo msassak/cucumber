@@ -57,7 +57,7 @@ Feature: Load resources from different places
 
       """
 
-  @resource_server @wip
+  @resource_server
   Scenario: Loading resources via a plugin
     Given a fakeproto server on localhost:22225 is serving the contents of the features directory
     And a file named "features/support/fake_proto_plugin.rb" with:
