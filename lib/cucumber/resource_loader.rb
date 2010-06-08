@@ -1,8 +1,14 @@
 require 'cucumber/formatter/duration'
 require 'open-uri'
+require 'gherkin/parser/filter_listener'
+require 'gherkin/parser/parser'
+require 'gherkin/i18n_lexer'
 
 module Cucumber
   class ResourceLoader
+    FILE_COLON_LINE_PATTERN = /^([\w\W]*?):([\d:]+)$/ #:nodoc:
+    LANGUAGE_PATTERN = /language:\s*(.*)/ #:nodoc:
+
     include Formatter::Duration
     attr_accessor :log, :options
 
@@ -15,8 +21,9 @@ module Cucumber
       start = Time.new
       log.debug("Features:\n")
       singletons.each do |f|
-        feature_file = FeatureFile.new(f)
-        feature = feature_file.parse(options)
+        _, path, lines = *parse_uri(f)
+        content = source(f)
+        feature = FeatureFile.new.parse(content, path, lines, options)
         if feature
           features.add_feature(feature)
           log.debug("  * #{f}\n")
@@ -26,35 +33,41 @@ module Cucumber
       log.debug("Parsing feature files took #{format_duration(duration)}\n\n")
       features
     end
+    
+    def source(uri)
+      if uri =~ /^http/
+        require 'open-uri'
+        open(uri).read
+      else
+        begin
+          File.open(uri, Cucumber.file_mode('r')).read 
+        rescue Errno::EACCES => e
+          p = File.expand_path(uri)
+          e.message << "\nCouldn't open #{p}"
+          raise e
+        end
+      end
+    end
+
+    def parse_uri(uri)
+      _, path, lines = *FILE_COLON_LINE_PATTERN.match(uri)
+      if path
+        lines = lines.split(':').map { |line| line.to_i }
+      else
+        path = uri
+      end
+      [_, path, lines]
+    end
   end
 end
 
-require 'gherkin/parser/filter_listener'
-require 'gherkin/parser/parser'
-require 'gherkin/i18n_lexer'
-
 module Cucumber
   class FeatureFile
-    FILE_COLON_LINE_PATTERN = /^([\w\W]*?):([\d:]+)$/ #:nodoc:
-    LANGUAGE_PATTERN = /language:\s*(.*)/ #:nodoc:
-
-    # The +uri+ argument is the location of the source. It can ba a path 
-    # or a path:line1:line2 etc. If +source+ is passed, +uri+ is ignored.
-    def initialize(uri, source=nil)
-      @source = source
-      _, @path, @lines = *FILE_COLON_LINE_PATTERN.match(uri)
-      if @path
-        @lines = @lines.split(':').map { |line| line.to_i }
-      else
-        @path = uri
-      end
-    end
-    
     # Parses a file and returns a Cucumber::Ast
     # If +options+ contains tags, the result will
     # be filtered.
-    def parse(options)
-      filters = @lines || options.filters
+    def parse(content, path, lines, options)
+      filters = lines || options.filters
 
       builder         = Cucumber::Ast::Builder.new
       filter_listener = Gherkin::Parser::FilterListener.new(builder, filters)
@@ -62,34 +75,19 @@ module Cucumber
       lexer           = Gherkin::I18nLexer.new(parser, false)
 
       begin
-        s = ENV['FILTER_PML_CALLOUT'] ? source.gsub(C_CALLOUT, '') : source
+        s = ENV['FILTER_PML_CALLOUT'] ? content.gsub(C_CALLOUT, '') : content
         lexer.scan(s)
         ast = builder.ast
         return nil if ast.nil? # Filter caused nothing to match
         ast.language = lexer.i18n_language
-        ast.file = @path
+        ast.file = path
         ast
       rescue Gherkin::LexingError, Gherkin::Parser::ParseError => e
-        e.message.insert(0, "#{@path}: ")
+        e.message.insert(0, "#{path}: ")
         raise e
       end
     end
 
-    def source
-      @source ||= if @path =~ /^http/
-        require 'open-uri'
-        open(@path).read
-      else
-        begin
-          File.open(@path, Cucumber.file_mode('r')).read 
-        rescue Errno::EACCES => e
-          p = File.expand_path(@path)
-          e.message << "\nCouldn't open #{p}"
-          raise e
-        end
-      end
-    end
-    
     private
     
     # Special PML markup that we want to filter out.
