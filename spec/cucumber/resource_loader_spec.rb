@@ -92,10 +92,8 @@ module Cucumber
       end.should raise_error(ParserNotFound)
     end
        
-    xit "should say it supports the formats parsed by a registered parser" do
-      register_parser(@textile_parser) do
-        @resource_loader.formats.should include(:textile)
-      end
+    it "says what formats it can parse" do
+      @resource_loader.formats.should include(:gherkin)
     end
         
     xit "should allow a format rule to override extension-based format determination" do
