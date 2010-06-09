@@ -7,7 +7,8 @@ module Cucumber
     attr_reader :uri, :path, :lines
 
     def initialize(uri)
-      @uri = uri
+      @uri = URI.parse(URI.escape(uri))
+
       _, @path, @lines = *RESOURCE_COLON_LINE_PATTERN.match(uri)
       if @path
         @lines = @lines.split(':').map { |line| line.to_i }
@@ -18,13 +19,11 @@ module Cucumber
     end
 
     def format
-      u = URI.parse(URI.escape(uri))
-      _, format = (u.scheme || "file+gherkin").split('+')
+      _, format = (uri.scheme || "file+gherkin").split('+')
       format ? format.to_sym : :gherkin
     end
 
     def protocol
-      uri = URI.parse(URI.escape(path))
       (uri.scheme || "file").split("+")[0].to_sym
     end
   end
