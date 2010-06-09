@@ -77,8 +77,8 @@ module Cucumber
       @resource_loader.load_resource("example")
     end
     
-    xit "should determine the feature format by the URI scheme" do
-      @textile_parser.should_receive(:parse).with(anything(), "example.textile", anything(), anything()).once
+    it "should determine the feature format by the URI scheme" do
+      @textile_parser.should_receive(:parse).with(anything(), "file+textile://example.textile", anything(), anything()).once
       @gherkin_parser.should_receive(:parse).with(anything(), "example.feature", anything(), anything()).once
       
       register_parser(@textile_parser) do

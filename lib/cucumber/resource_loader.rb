@@ -55,13 +55,12 @@ module Cucumber
       end
 
       content = reader_for(path).read(path)
-      #Cucumber::GherkinParser.new.parse(content, path, lines, options)
       parser_for(path).parse(content, path, lines, options)
     end
 
     def reader_for(path)
       uri = URI.parse(URI.escape(path))
-      proto = (uri.scheme || :file).to_sym
+      proto = (uri.scheme || "file+gherkin").split('+')[0].to_sym
       readers[proto] || raise(ReaderNotFound.new(proto, protocols))
     end
 
