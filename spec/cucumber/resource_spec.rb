@@ -24,5 +24,10 @@ module Cucumber
       its(:format)   { should == :gherkin }
       its(:protocol) { should == :http }
     end
+
+    describe "a resource with a protocol and format" do
+      subject        { Resource.new("http+json://example.com/my.feature") }
+      its(:path)     { should == "http+json://example.com/my.feature" }
+    end
   end
 end
