@@ -95,17 +95,5 @@ module Cucumber
     it "says what formats it can parse" do
       @resource_loader.formats.should include(:gherkin)
     end
-        
-    xit "should allow format rules to enable parsing features with the same extension in different formats" do
-      @textile_parser.should_receive(:parse).once
-      @gherkin_parser.should_receive(:parse).once
-            
-      register_format_rules({/features\/test\/\w+\.feature$/ => :textile}) do
-        register_parser(@textile_parser) do
-          @resource_loader.load_feature("features/example.feature")
-          @resource_loader.load_feature("features/test/example.feature")          
-        end
-      end
-    end
   end
 end
