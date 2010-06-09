@@ -65,6 +65,12 @@ module Cucumber
         @file_loader.should_receive(:read).with("example.feature").once
         @resource_loader.load_resources(["example.feature", "http://test.domain/http.feature"])
       end
+      xit "should pull feature names from a feature list" do
+        @file_input.should_receive(:list).with("my_feature_list.txt").and_return(["features/foo.feature", "features/bar.feature"])
+        @resource_loader.load_features(["@my_feature_list.txt"])
+      end
+    end
+
     end
         
     it "says what protocols it supports" do
@@ -130,10 +136,4 @@ module Cucumber
         end.should raise_error(AmbiguousFormatRules)
       end
     end
-    
-    xit "should pull feature names from a feature list" do
-      @file_input.should_receive(:list).with("my_feature_list.txt").and_return(["features/foo.feature", "features/bar.feature"])
-      @resource_loader.load_features(["@my_feature_list.txt"])
-    end
-  end
 end
