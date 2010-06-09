@@ -18,14 +18,14 @@ module Cucumber
       its(:lines) { should == [6, 98, 113] }
     end
 
-    describe "a resource with a specified protocol" do
+    describe "a resource with protocol" do
       subject        { Resource.new("http://example.feature") }
       its(:path)     { should == "http://example.feature" }
       its(:format)   { should == :gherkin }
       its(:protocol) { should == :http }
     end
 
-    describe "a resource with a protocol and format" do
+    describe "a resource with protocol and format" do
       subject        { Resource.new("http+json://example.com/my.feature") }
       its(:path)     { should == "http+json://example.com/my.feature" }
     end
