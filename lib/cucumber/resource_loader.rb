@@ -14,25 +14,23 @@ module Cucumber
     include Formatter::Duration
     attr_accessor :log, :options
 
-    def load_resources(feature_files)
+    def load_resources(feature_files, feature_suite = Ast::Features.new)
       lists, singletons = feature_files.partition{ |res| res =~ /^@/ }
       lists.map! { |list| list.gsub(/^@/, '') }
       singletons += lists.collect{ |list| loader_for(list).list(list) }.flatten
-
-      features = Ast::Features.new
 
       start = Time.new
       log.debug("Features:\n")
       singletons.each do |uri|
         feature = load_resource(uri)
         if feature
-          features.add_feature(feature)
+          feature_suite.add_feature(feature)
           log.debug("  * #{uri}\n")
         end
       end
       duration = Time.now - start
       log.debug("Parsing feature files took #{format_duration(duration)}\n\n")
-      features
+      feature_suite
     end
     
     def load_resource(uri)
