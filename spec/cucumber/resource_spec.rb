@@ -11,5 +11,10 @@ module Cucumber
       its(:format)   { should == :gherkin }
       its(:protocol) { should == :file }
     end
+
+    describe "a resource with specific lines" do
+      subject { Resource.new("example.feature:6:98:113") }
+      its(:lines) { should == [6, 98, 113] }
+    end
   end
 end
