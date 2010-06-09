@@ -1,14 +1,14 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 require 'cucumber/resource_loader'
-require 'cucumber/default_reader'
+require 'cucumber/reader'
 require 'cucumber/gherkin_parser'
 
 module Cucumber
   describe ResourceLoader do
     before do
-      @default_reader = mock('default reader service', :read => "Feature: test", :protocols => [:file, :http, :https])
-      DefaultReader.stub!(:new).and_return(@default_reader)
+      @reader = mock('default reader service', :read => "Feature: test", :protocols => [:file, :http, :https])
+      Reader.stub!(:new).and_return(@reader)
 
       @gherkin_parser = mock('gherkin parser', :parse => mock('feature', :features= => true, :adverbs => []), :format => :treetop)
       GherkinParser.stub!(:new).and_return(@gherkin_parser)
@@ -37,17 +37,17 @@ module Cucumber
         
     describe "loading resources" do
       it "splits the path from line numbers" do
-        @default_reader.should_receive(:read).with("example.feature")
+        @reader.should_receive(:read).with("example.feature")
         @resource_loader.load_resource("example.feature:10:20")
       end
       
       it "reads a feature from a file" do
-        @default_reader.should_receive(:read).with("example.feature").once
+        @reader.should_receive(:read).with("example.feature").once
         @resource_loader.load_resource("example.feature")
       end
 
       it "loads a feature from a file with spaces in the name" do
-        @default_reader.should_receive(:read).with("features/spaces are nasty.feature").once
+        @reader.should_receive(:read).with("features/spaces are nasty.feature").once
         @resource_loader.load_resource("features/spaces are nasty.feature")
       end
 
@@ -58,13 +58,13 @@ module Cucumber
       end
 
       it "loads features from multiple input sources" do
-        @default_reader.should_receive(:read).with("example.feature").ordered
-        @default_reader.should_receive(:read).with("http://test.domain/http.feature").ordered
+        @reader.should_receive(:read).with("example.feature").ordered
+        @reader.should_receive(:read).with("http://test.domain/http.feature").ordered
         @resource_loader.load_resources(["example.feature", "http://test.domain/http.feature"])
       end
       
       it "retrieves resource names from a list" do
-        @default_reader.should_receive(:list).with("my_feature_list.txt").and_return(["features/foo.feature", "features/bar.feature"])
+        @reader.should_receive(:list).with("my_feature_list.txt").and_return(["features/foo.feature", "features/bar.feature"])
         @resource_loader.load_resources(["@my_feature_list.txt"])
       end
     end

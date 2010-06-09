@@ -21,7 +21,7 @@ module Cucumber
 
     # Plugins depend on the ResourceLoader and registry, so we
     # must require the default plugins after the ResourceLoader
-    require 'cucumber/default_reader'
+    require 'cucumber/reader'
     require 'cucumber/gherkin_parser'
 
     RESOURCE_COLON_LINE_PATTERN = /^([\w\W]*?):([\d:]+)$/ #:nodoc:
@@ -29,14 +29,12 @@ module Cucumber
     include Formatter::Duration
     attr_accessor :log, :options
 
-    def load_resources(feature_files, feature_suite = Ast::Features.new)
-      lists, singletons = feature_files.partition{ |res| res =~ /^@/ }
-      lists.map! { |list| list.gsub(/^@/, '') }
-      singletons += lists.collect{ |list| reader_for(list).list(list) }.flatten
-
+    def load_resources(uris, feature_suite = Ast::Features.new)
+      all_uris = expand_uris(uris)
+      
       start = Time.new
       log.debug("Features:\n")
-      singletons.each do |uri|
+      all_uris.each do |uri|
         feature = load_resource(uri)
         if feature
           feature_suite.add_feature(feature)
@@ -80,6 +78,12 @@ module Cucumber
 
     def protocols
       readers.keys
+    end
+
+    def expand_uris(uris)
+      lists, singletons = uris.partition{ |res| res =~ /^@/ }
+      lists.map! { |list| list.gsub(/^@/, '') }
+      singletons += lists.collect{ |list| reader_for(list).list(list) }.flatten
     end
   end
 end

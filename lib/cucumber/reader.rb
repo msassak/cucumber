@@ -2,7 +2,7 @@ require 'cucumber/plugin'
 require 'open-uri'
 
 module Cucumber
-  class DefaultReader
+  class Reader
     extend Cucumber::Plugin
     register_reader(self)
 
