@@ -13,7 +13,7 @@ module Cucumber
     end
 
     describe "a resource with specific lines" do
-      subject { Resource.new("example.feature:6:98:113") }
+      subject     { Resource.new("example.feature:6:98:113") }
       its(:lines) { should == [6, 98, 113] }
     end
   end
