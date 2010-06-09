@@ -2,17 +2,16 @@ module Cucumber
   class Resource
     RESOURCE_COLON_LINE_PATTERN = /^([\w\W]*?):([\d:]+)$/ #:nodoc:
 
-    def initialize(uri)
-      @uri = uri
-      _, _, @lines = *RESOURCE_COLON_LINE_PATTERN.match(@uri)
-    end
+    attr_reader :path, :lines
 
-    def path
-      @uri
-    end
-    
-    def lines
-      @lines ? @lines.split(':').map{ |line| line.to_i } : nil
+    def initialize(uri)
+      _, @path, @lines = *RESOURCE_COLON_LINE_PATTERN.match(uri)
+      if @path
+        @lines = @lines.split(':').map { |line| line.to_i }
+      else
+        @path = uri
+      end
+
     end
 
     def format
