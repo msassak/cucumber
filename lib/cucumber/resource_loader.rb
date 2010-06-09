@@ -2,6 +2,12 @@ require 'cucumber/formatter/duration'
 require 'open-uri'
 
 module Cucumber
+  class LoaderNotFound < StandardError
+    def initialize(proto, available)
+      super "No input service for the '#{proto}' protocol has been registered. Services available: #{available.join(', ')}."
+    end
+  end
+ 
   class ResourceLoader
     FILE_COLON_LINE_PATTERN = /^([\w\W]*?):([\d:]+)$/ #:nodoc:
 
@@ -61,7 +67,11 @@ module Cucumber
     def loader_for(path)
       uri = URI.parse(URI.escape(path))
       proto = (uri.scheme || :file).to_sym
-      @loaders[proto]
+      @loaders[proto] || raise(LoaderNotFound.new(proto, protocols))
+    end
+
+    def protocols
+      @loaders.keys
     end
   end
 end

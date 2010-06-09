@@ -49,30 +49,30 @@ module Cucumber
         @resource_loader.load_resource("example.feature")
       end
 
-      it "should load a feature from a file with spaces in the name" do
+      it "loads a feature from a file with spaces in the name" do
         @file_loader.should_receive(:read).with("features/spaces are nasty.feature").once
         @resource_loader.load_resource("features/spaces are nasty.feature")
+      end
+
+      it "raises if it has no input service for the protocol" do
+        lambda {
+         @resource_loader.load_resource("accidentally://the.whole/thing.feature") 
+        }.should raise_error(LoaderNotFound, /.*'accidentally'.*Services available:.*/)
       end
     end
         
     describe "#load_resources" do
-      it "should load features from multiple input sources" do
+      it "loads features from multiple input sources" do
         @http_loader.should_receive(:read).with("http://test.domain/http.feature").once
         @file_loader.should_receive(:read).with("example.feature").once
         @resource_loader.load_resources(["example.feature", "http://test.domain/http.feature"])
       end
     end
     
-    xit "should say it supports the protocols provided by the registered input services" do
+    it "says what protocols it supports" do
       @resource_loader.protocols.should include(:http, :https, :file)
     end
     
-    xit "should raise if it has no input service for the protocol" do
-      lambda {
-       @resource_loader.load_feature("accidentally://the.whole/thing.feature") 
-      }.should raise_error(InputServiceNotFound, /.*'accidentally'.*Services available:.*/)
-    end
-
     xit "should parse a feature written in Gherkin" do
       @gherkin_parser.should_receive(:parse).once
       @resource_loader.load_feature("example.feature")
