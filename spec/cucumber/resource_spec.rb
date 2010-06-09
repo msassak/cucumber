@@ -12,12 +12,6 @@ module Cucumber
       its(:protocol) { should == :file }
     end
 
-    describe "a resource with specific lines" do
-      subject     { Resource.new("example.feature:6:98:113") }
-      its(:path)  { should == "example.feature" }
-      its(:lines) { should == [6, 98, 113] }
-    end
-
     describe "a resource with protocol" do
       subject        { Resource.new("http://example.com/example.feature") }
       its(:path)     { should == "http://example.com/example.feature" }
@@ -30,6 +24,13 @@ module Cucumber
       its(:path)     { should == "ftp+json://example.com/my.feature" }
       its(:format)   { should == :json }
       its(:protocol) { should == :ftp }
+    end
+
+    describe "a resource with protocol, format and lines" do
+      subject        { Resource.new("git+textile://example.com/my.feature:6:98:2112") }
+      its(:lines)    { should == [6, 98, 2112] }
+      its(:format)   { should == :textile }
+      its(:protocol) { should == :git     }
     end
   end
 end
