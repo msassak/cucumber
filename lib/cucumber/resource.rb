@@ -16,12 +16,14 @@ module Cucumber
     end
 
     def format
-      :gherkin
+      uri = URI.parse(URI.escape(path))
+      _, format = (uri.scheme || "file+gherkin").split('+')
+      format ? format.to_sym : :gherkin
     end
 
     def protocol
       uri = URI.parse(URI.escape(path))
-      (uri.scheme || :file).to_sym
+      (uri.scheme || "file").split("+")[0].to_sym
     end
   end
 end

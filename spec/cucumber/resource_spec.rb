@@ -26,8 +26,10 @@ module Cucumber
     end
 
     describe "a resource with protocol and format" do
-      subject        { Resource.new("http+json://example.com/my.feature") }
-      its(:path)     { should == "http+json://example.com/my.feature" }
+      subject        { Resource.new("ftp+json://example.com/my.feature") }
+      its(:path)     { should == "ftp+json://example.com/my.feature" }
+      its(:format)   { should == :json }
+      its(:protocol) { should == :ftp }
     end
   end
 end
