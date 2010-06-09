@@ -1,3 +1,4 @@
+@resource_server
 Feature: Load resources from different places
   In order to run features from wherever they are located
   As a cucumber developer
@@ -27,7 +28,6 @@ Feature: Load resources from different places
       http://localhost:22225/features/remote_2.feature
       """
   
-  @resource_server
   Scenario: Single resource via HTTP
     Given an http server on localhost:22225 is serving the contents of the features directory
     When I run cucumber --dry-run -f pretty http://localhost:22225/features/remote_1.feature
@@ -44,7 +44,6 @@ Feature: Load resources from different places
 
       """
 
-  @resource_server
   Scenario: Many resources via HTTP
     Given an http server on localhost:22225 is serving the contents of the features directory
     When I run cucumber --dry-run -f progress @http://localhost:22225/features/feature.list
@@ -57,7 +56,6 @@ Feature: Load resources from different places
 
       """
 
-  @resource_server
   Scenario: Loading resources via a plugin
     Given a fakeproto server on localhost:22225 is serving the contents of the features directory
     And a file named "features/support/fake_proto_plugin.rb" with:
