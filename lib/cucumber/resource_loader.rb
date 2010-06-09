@@ -35,8 +35,8 @@ module Cucumber
     include Formatter::Duration
     attr_accessor :log, :options
 
-    def load_resources(uris, feature_suite = Ast::Features.new)
-      all_uris = expand_uris(uris)
+    def load_resources(resource_uris, feature_suite = Ast::Features.new)
+      all_uris = expand_uris(resource_uris)
       
       start = Time.new
       log.debug("Features:\n")
