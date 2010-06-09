@@ -16,7 +16,8 @@ module Cucumber
 
     def load_resources(feature_files)
       lists, singletons = feature_files.partition{ |res| res =~ /^@/ }
-      singletons += lists.collect{ |list| open(list.gsub(/^@/, '')).readlines}.flatten
+      lists.map! { |list| list.gsub(/^@/, '') }
+      singletons += lists.collect{ |list| loader_for(list).list(list) }.flatten
 
       features = Ast::Features.new
 
