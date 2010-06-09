@@ -19,8 +19,8 @@ module Cucumber
     end
 
     describe "a resource with protocol" do
-      subject        { Resource.new("http://example.feature") }
-      its(:path)     { should == "http://example.feature" }
+      subject        { Resource.new("http://example.com/example.feature") }
+      its(:path)     { should == "http://example.com/example.feature" }
       its(:format)   { should == :gherkin }
       its(:protocol) { should == :http }
     end
