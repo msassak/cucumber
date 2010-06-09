@@ -28,9 +28,10 @@ module Cucumber
 
     describe "a resource with protocol, format and lines" do
       subject        { Resource.new("git+textile://example.com/my.feature:6:98:2112") }
+      its(:path)     { should == "git://example.com/my.feature" }
       its(:lines)    { should == [6, 98, 2112] }
       its(:format)   { should == :textile }
-      its(:protocol) { should == :git     }
+      its(:protocol) { should == :git }
     end
   end
 end
