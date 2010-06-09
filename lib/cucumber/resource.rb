@@ -11,5 +11,13 @@ module Cucumber
     def lines
       nil
     end
+
+    def format
+      :gherkin
+    end
+
+    def protocol
+      :file
+    end
   end
 end
