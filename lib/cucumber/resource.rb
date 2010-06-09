@@ -11,7 +11,6 @@ module Cucumber
       else
         @path = uri
       end
-
     end
 
     def format

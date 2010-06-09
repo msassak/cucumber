@@ -5,8 +5,8 @@ require 'cucumber/resource'
 module Cucumber
   describe Resource do
     describe "a vanilla resource" do
-      subject        { Resource.new("example.feature") }
-      its(:path)     { should == "example.feature" }
+      subject        { Resource.new("features/example.feature") }
+      its(:path)     { should == "features/example.feature" }
       its(:lines)    { should be_nil }
       its(:format)   { should == :gherkin }
       its(:protocol) { should == :file }
