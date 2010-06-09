@@ -1,15 +1,13 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-require 'cucumber'
+require 'cucumber/resource_loader'
+require 'cucumber/default_reader'
 
 module Cucumber
   describe ResourceLoader do
     before do
-      @file_loader = mock('file input service', :read => "Feature: test", :protocols => [:file])
-      #Inputs::File.stub!(:new).and_return(@file_input)
-
-      @http_loader = mock('http input service', :read => "Feature: test", :protocols => [:http, :https])
-      #Inputs::HTTP.stub!(:new).and_return(@http_input)
+      @default_reader = mock('default reader service', :read => "Feature: test", :protocols => [:file, :http, :https])
+      DefaultReader.stub!(:new).and_return(@default_reader)
 
       @gherkin_parser = mock('gherkin parser', :parse => mock('feature', :features= => true, :adverbs => []), :format => :treetop)
       #Parsers::Treetop.stub!(:new).and_return(@gherkin_parser)
@@ -22,8 +20,6 @@ module Cucumber
       @resource_loader = ResourceLoader.new
       @resource_loader.log = @log
       @resource_loader.options = mock('options', :filters => [])
-      @resource_loader.register_loader(@file_loader)
-      @resource_loader.register_loader(@http_loader)
     end
 
     def register_parser(parser, &block)
@@ -40,34 +36,34 @@ module Cucumber
         
     describe "loading resources" do
       it "splits the path from line numbers" do
-        @file_loader.should_receive(:read).with("example.feature")
+        @default_reader.should_receive(:read).with("example.feature")
         @resource_loader.load_resource("example.feature:10:20")
       end
       
       it "reads a feature from a file" do
-        @file_loader.should_receive(:read).with("example.feature").once
+        @default_reader.should_receive(:read).with("example.feature").once
         @resource_loader.load_resource("example.feature")
       end
 
       it "loads a feature from a file with spaces in the name" do
-        @file_loader.should_receive(:read).with("features/spaces are nasty.feature").once
+        @default_reader.should_receive(:read).with("features/spaces are nasty.feature").once
         @resource_loader.load_resource("features/spaces are nasty.feature")
       end
 
       it "raises if it has no input service for the protocol" do
         lambda {
          @resource_loader.load_resource("accidentally://the.whole/thing.feature") 
-        }.should raise_error(LoaderNotFound, /.*'accidentally'.*Services available:.*/)
+        }.should raise_error(ReaderNotFound, /.*'accidentally'.*Protocols available:.*/)
       end
 
       it "loads features from multiple input sources" do
-        @http_loader.should_receive(:read).with("http://test.domain/http.feature").once
-        @file_loader.should_receive(:read).with("example.feature").once
+        @default_reader.should_receive(:read).with("example.feature").ordered
+        @default_reader.should_receive(:read).with("http://test.domain/http.feature").ordered
         @resource_loader.load_resources(["example.feature", "http://test.domain/http.feature"])
       end
       
       it "retrieves resource names from a list" do
-        @file_loader.should_receive(:list).with("my_feature_list.txt").and_return(["features/foo.feature", "features/bar.feature"])
+        @default_reader.should_receive(:list).with("my_feature_list.txt").and_return(["features/foo.feature", "features/bar.feature"])
         @resource_loader.load_resources(["@my_feature_list.txt"])
       end
     end

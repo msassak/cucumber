@@ -1,14 +1,29 @@
 require 'cucumber/formatter/duration'
-require 'open-uri'
+require 'uri'
 
 module Cucumber
-  class LoaderNotFound < StandardError
+  class ReaderNotFound < StandardError
     def initialize(proto, available)
-      super "No input service for the '#{proto}' protocol has been registered. Services available: #{available.join(', ')}."
+      super "No reader service for the '#{proto}' protocol has been registered. Protocols available: #{available.join(', ')}."
     end
   end
  
   class ResourceLoader
+    class << self
+      def registry
+        @registry ||= { :readers => [] }
+      end
+
+      def clear_registry
+        @registry = nil
+      end
+    end
+
+    # Plugins depend on the ResourceLoader and registry, so we
+    # must require the default plugins after the ResourceLoader
+    require 'cucumber/default_reader'
+    require 'cucumber/gherkin_parser'
+
     FILE_COLON_LINE_PATTERN = /^([\w\W]*?):([\d:]+)$/ #:nodoc:
 
     include Formatter::Duration
@@ -17,7 +32,7 @@ module Cucumber
     def load_resources(feature_files, feature_suite = Ast::Features.new)
       lists, singletons = feature_files.partition{ |res| res =~ /^@/ }
       lists.map! { |list| list.gsub(/^@/, '') }
-      singletons += lists.collect{ |list| loader_for(list).list(list) }.flatten
+      singletons += lists.collect{ |list| reader_for(list).list(list) }.flatten
 
       start = Time.new
       log.debug("Features:\n")
@@ -41,11 +56,11 @@ module Cucumber
         path = uri
       end
 
-      content = loader_for(path).read(path)
-      Cucumber::Plugins::GherkinParser.new.parse(content, path, lines, options)
+      content = reader_for(path).read(path)
+      Cucumber::GherkinParser.new.parse(content, path, lines, options)
     end
 
-    def loader_forXX(path)
+    def reader_forXX(path)
       uri = URI.parse(URI.escape(path))
       proto = (uri.scheme || :file).to_sym
       plugins = Cucumber::Plugins.constants.inject([]) do |plugins, name|
@@ -56,84 +71,26 @@ module Cucumber
       plugins.find{|plugin| plugin.class.protocols.include?(proto) }
     end
 
-    def register_loader(loader)
-      @loaders ||= {}
-      loader.protocols.each do |proto|
-        @loaders[proto] = loader
-      end
-    end
-
-    def loader_for(path)
+    def reader_for(path)
       uri = URI.parse(URI.escape(path))
       proto = (uri.scheme || :file).to_sym
-      @loaders[proto] || raise(LoaderNotFound.new(proto, protocols))
+      readers[proto] || raise(ReaderNotFound.new(proto, protocols))
+    end
+
+    def readers
+      return @readers if @readers
+      @readers = {}
+      self.class.registry[:readers].each do |reader_class|
+        reader = reader_class.new
+        reader.protocols.each do |proto|
+          @readers[proto] = reader
+        end
+      end
+      @readers
     end
 
     def protocols
-      @loaders.keys
-    end
-  end
-end
-
-require 'gherkin/parser/filter_listener'
-require 'gherkin/parser/parser'
-require 'gherkin/i18n_lexer'
-
-module Cucumber
-  module Plugins
-    class GherkinParser
-      # Parses a file and returns a Cucumber::Ast
-      # If +options+ contains tags, the result will
-      # be filtered.
-      def parse(content, path, lines, options)
-        filters = lines || options.filters
-
-        builder         = Cucumber::Ast::Builder.new
-        filter_listener = Gherkin::Parser::FilterListener.new(builder, filters)
-        parser          = Gherkin::Parser::Parser.new(filter_listener, true, "root")
-        lexer           = Gherkin::I18nLexer.new(parser, false)
-
-        begin
-          s = ENV['FILTER_PML_CALLOUT'] ? content.gsub(C_CALLOUT, '') : content
-          lexer.scan(s)
-          ast = builder.ast
-          return nil if ast.nil? # Filter caused nothing to match
-          ast.language = lexer.i18n_language
-          ast.file = path
-          ast
-        rescue Gherkin::LexingError, Gherkin::Parser::ParseError => e
-          e.message.insert(0, "#{path}: ")
-          raise e
-        end
-      end
-
-      private
-      
-      # Special PML markup that we want to filter out.
-      CO = %{\\s*<(label|callout)\s+id=".*?"\s*/>\\s*}
-      C_CALLOUT = %r{/\*#{CO}\*/|//#{CO}}o
-    end
-
-    class DefaultLoader
-      class << self
-        def protocols
-          [:file, :http, :https]
-        end
-      end
-
-      def read(uri)
-        if uri =~ /^http/
-          open(uri).read
-        else
-          begin
-            File.open(uri, Cucumber.file_mode('r')).read 
-          rescue Errno::EACCES => e
-            p = File.expand_path(uri)
-            e.message << "\nCouldn't open #{p}"
-            raise e
-          end
-        end
-      end
+      readers.keys
     end
   end
 end
