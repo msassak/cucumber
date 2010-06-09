@@ -60,17 +60,6 @@ module Cucumber
       Cucumber::GherkinParser.new.parse(content, path, lines, options)
     end
 
-    def reader_forXX(path)
-      uri = URI.parse(URI.escape(path))
-      proto = (uri.scheme || :file).to_sym
-      plugins = Cucumber::Plugins.constants.inject([]) do |plugins, name|
-        plugin = Cucumber::Plugins.const_get(name)
-        plugins << plugin.new if plugin.respond_to?(:protocols)
-        plugins
-      end
-      plugins.find{|plugin| plugin.class.protocols.include?(proto) }
-    end
-
     def reader_for(path)
       uri = URI.parse(URI.escape(path))
       proto = (uri.scheme || :file).to_sym
