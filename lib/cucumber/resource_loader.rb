@@ -40,7 +40,7 @@ module Cucumber
       Cucumber::Plugins::GherkinParser.new.parse(content, path, lines, options)
     end
 
-    def loader_for(path)
+    def loader_forXX(path)
       uri = URI.parse(URI.escape(path))
       proto = (uri.scheme || :file).to_sym
       plugins = Cucumber::Plugins.constants.inject([]) do |plugins, name|
@@ -49,6 +49,19 @@ module Cucumber
         plugins
       end
       plugins.find{|plugin| plugin.class.protocols.include?(proto) }
+    end
+
+    def register_loader(loader)
+      @loaders ||= {}
+      loader.protocols.each do |proto|
+        @loaders[proto] = loader
+      end
+    end
+
+    def loader_for(path)
+      uri = URI.parse(URI.escape(path))
+      proto = (uri.scheme || :file).to_sym
+      @loaders[proto]
     end
   end
 end

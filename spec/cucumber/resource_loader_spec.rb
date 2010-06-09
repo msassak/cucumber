@@ -5,17 +5,14 @@ require 'cucumber'
 module Cucumber
   describe ResourceLoader do
     before do
-      require 'cucumber/inputs/file' # Requiring registers plugins
-      @file_input = mock('file input service', :read => "Feature: test", :protocols => [:file])
-      Inputs::File.stub!(:new).and_return(@file_input)
+      @file_loader = mock('file input service', :read => "Feature: test", :protocols => [:file])
+      #Inputs::File.stub!(:new).and_return(@file_input)
 
-      require 'cucumber/inputs/http'
-      @http_input = mock('http input service', :read => "Feature: test", :protocols => [:http, :https])
-      Inputs::HTTP.stub!(:new).and_return(@http_input)
+      @http_loader = mock('http input service', :read => "Feature: test", :protocols => [:http, :https])
+      #Inputs::HTTP.stub!(:new).and_return(@http_input)
 
-      require 'cucumber/parsers/treetop'
       @gherkin_parser = mock('gherkin parser', :parse => mock('feature', :features= => true, :adverbs => []), :format => :treetop)
-      Parsers::Treetop.stub!(:new).and_return(@gherkin_parser)
+      #Parsers::Treetop.stub!(:new).and_return(@gherkin_parser)
       
       @textile_parser = mock('textile parser', :parse => mock('feature', :adverbs => [], :features= => true), :format => :textile)
       
@@ -24,6 +21,9 @@ module Cucumber
 
       @resource_loader = ResourceLoader.new
       @resource_loader.log = @log
+      @resource_loader.options = mock('options', :filters => [])
+      @resource_loader.register_loader(@file_loader)
+      @resource_loader.register_loader(@http_loader)
     end
 
     def register_parser(parser, &block)
@@ -38,25 +38,29 @@ module Cucumber
       ResourceLoader.registry[:format_rules].clear
     end
         
-    xit "should split the content name and line numbers from the sources" do
-      @file_input.should_receive(:read).with("example.feature")
-      @resource_loader.load_feature("example.feature:10:20")
-    end
-    
-    xit "should load a feature from a file" do
-      @file_input.should_receive(:read).with("example.feature").once
-      @resource_loader.load_feature("example.feature")
-    end
+    describe "#load_resource" do
+      it "splits the path from line numbers" do
+        @file_loader.should_receive(:read).with("example.feature")
+        @resource_loader.load_resource("example.feature:10:20")
+      end
+      
+      it "reads a feature from a file" do
+        @file_loader.should_receive(:read).with("example.feature").once
+        @resource_loader.load_resource("example.feature")
+      end
 
-    xit "should load a feature from a file with spaces in the name" do
-      @file_input.should_receive(:read).with("features/spaces are nasty.feature").once
-      @resource_loader.load_feature("features/spaces are nasty.feature")
+      it "should load a feature from a file with spaces in the name" do
+        @file_loader.should_receive(:read).with("features/spaces are nasty.feature").once
+        @resource_loader.load_resource("features/spaces are nasty.feature")
+      end
     end
-    
-    xit "should load features from multiple input sources" do
-      @http_input.should_receive(:read).with("http://test.domain/http.feature").once
-      @file_input.should_receive(:read).with("example.feature").once
-      @resource_loader.load_features(["example.feature", "http://test.domain/http.feature"])
+        
+    describe "#load_resources" do
+      it "should load features from multiple input sources" do
+        @http_loader.should_receive(:read).with("http://test.domain/http.feature").once
+        @file_loader.should_receive(:read).with("example.feature").once
+        @resource_loader.load_resources(["example.feature", "http://test.domain/http.feature"])
+      end
     end
     
     xit "should say it supports the protocols provided by the registered input services" do
