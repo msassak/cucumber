@@ -24,7 +24,7 @@ module Cucumber
     require 'cucumber/default_reader'
     require 'cucumber/gherkin_parser'
 
-    FILE_COLON_LINE_PATTERN = /^([\w\W]*?):([\d:]+)$/ #:nodoc:
+    RESOURCE_COLON_LINE_PATTERN = /^([\w\W]*?):([\d:]+)$/ #:nodoc:
 
     include Formatter::Duration
     attr_accessor :log, :options
@@ -49,7 +49,7 @@ module Cucumber
     end
     
     def load_resource(uri)
-      _, path, lines = *FILE_COLON_LINE_PATTERN.match(uri)
+      _, path, lines = *RESOURCE_COLON_LINE_PATTERN.match(uri)
       if path
         lines = lines.split(':').map { |line| line.to_i }
       else
