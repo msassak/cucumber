@@ -17,5 +17,12 @@ module Cucumber
       its(:path)  { should == "example.feature" }
       its(:lines) { should == [6, 98, 113] }
     end
+
+    describe "a resource with a specified protocol" do
+      subject        { Resource.new("http://example.feature") }
+      its(:path)     { should == "http://example.feature" }
+      its(:format)   { should == :gherkin }
+      its(:protocol) { should == :http }
+    end
   end
 end

@@ -1,3 +1,5 @@
+require 'uri'
+
 module Cucumber
   class Resource
     RESOURCE_COLON_LINE_PATTERN = /^([\w\W]*?):([\d:]+)$/ #:nodoc:
@@ -18,7 +20,8 @@ module Cucumber
     end
 
     def protocol
-      :file
+      uri = URI.parse(URI.escape(path))
+      (uri.scheme || :file).to_sym
     end
   end
 end
