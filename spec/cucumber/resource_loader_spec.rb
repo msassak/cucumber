@@ -85,7 +85,13 @@ module Cucumber
         @resource_loader.load_resources(["example.feature", "file+textile://example.textile"])
       end
     end
-            
+
+    it "raises ParserNotFound if no parser exists for the format" do
+      lambda do 
+        @resource_loader.load_resources(["file+dne://example.feature"])
+      end.should raise_error(ParserNotFound)
+    end
+       
     xit "should say it supports the formats parsed by a registered parser" do
       register_parser(@textile_parser) do
         @resource_loader.formats.should include(:textile)
@@ -111,14 +117,6 @@ module Cucumber
           @resource_loader.load_feature("features/example.feature")
           @resource_loader.load_feature("features/test/example.feature")          
         end
-      end
-    end
-    
-    xit "should raise AmbiguousFormatRules if two or more format rules match" do
-      register_format_rules({/\.foo$/ => :gherkin, /.*/ => :gherkin}) do
-        lambda do
-          @resource_loader.load_feature("example.foo")
-        end.should raise_error(AmbiguousFormatRules)
       end
     end
   end

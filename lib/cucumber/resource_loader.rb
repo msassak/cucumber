@@ -7,6 +7,12 @@ module Cucumber
       super "No reader service for the '#{proto}' protocol has been registered. Protocols available: #{available.join(', ')}."
     end
   end
+
+  class ParserNotFound < StandardError
+    def initialize(format, available)
+      super "No plugins service for the '#{format}' format has been registered. Formats available: #{available.join(', ')}."
+    end
+  end
  
   class ResourceLoader
     class << self
@@ -83,7 +89,7 @@ module Cucumber
     def parser_for(path)
       uri = URI.parse(URI.escape(path))
       _, format = (uri.scheme || "file+gherkin").split('+')
-      parsers[format ? format.to_sym : :gherkin]
+      parsers[format ? format.to_sym : :gherkin] || raise(ParserNotFound.new(format, formats))
     end
 
     def parsers
@@ -94,6 +100,10 @@ module Cucumber
         @parsers[parser.format] = parser
       end
       @parsers
+    end
+
+    def formats
+      parsers.keys
     end
 
     def expand_uris(uris)
