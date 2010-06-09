@@ -4,7 +4,7 @@ module Cucumber
   class Resource
     RESOURCE_COLON_LINE_PATTERN = /^([\w\W]*?):([\d:]+)$/ #:nodoc:
 
-    attr_reader :uri, :path, :lines
+    attr_reader :uri, :lines
 
     def initialize(uri)
       @uri = URI.parse(URI.escape(uri))
@@ -12,10 +12,11 @@ module Cucumber
       _, @path, @lines = *RESOURCE_COLON_LINE_PATTERN.match(uri)
       if @path
         @lines = @lines.split(':').map { |line| line.to_i }
-      else
-        @path = uri.gsub(/\+[\w\W]+:\/\//, '://')
       end
+    end
 
+    def path
+      uri.to_s.gsub(/\+[\w\W]+:\/\//, '://')
     end
 
     def format
