@@ -10,7 +10,7 @@ module Cucumber
       @reader = mock('default reader service', :read => "Feature: test", :protocols => [:file, :http, :https])
       Reader.stub!(:new).and_return(@reader)
 
-      @gherkin_parser = mock('gherkin parser', :parse => mock('feature', :features= => true, :adverbs => []), :format => :treetop)
+      @gherkin_parser = mock('gherkin parser', :parse => mock('feature', :features= => true, :adverbs => []), :format => :gherkin)
       GherkinParser.stub!(:new).and_return(@gherkin_parser)
       
       @textile_parser = mock('textile parser', :parse => mock('feature', :adverbs => [], :features= => true), :format => :textile)
@@ -29,12 +29,6 @@ module Cucumber
       ResourceLoader.registry[:parsers].pop
     end
     
-    def register_format_rules(rules, &block)
-      ResourceLoader.registry[:format_rules].merge!(rules)
-      block.call
-      ResourceLoader.registry[:format_rules].clear
-    end
-        
     describe "loading resources" do
       it "splits the path from line numbers" do
         @reader.should_receive(:read).with("example.feature")
@@ -83,12 +77,12 @@ module Cucumber
       @resource_loader.load_resource("example")
     end
     
-    xit "should determine the feature format by the file extension" do
+    xit "should determine the feature format by the URI scheme" do
       @textile_parser.should_receive(:parse).with(anything(), "example.textile", anything(), anything()).once
       @gherkin_parser.should_receive(:parse).with(anything(), "example.feature", anything(), anything()).once
       
       register_parser(@textile_parser) do
-        @resource_loader.load_features(["example.feature", "example.textile"])
+        @resource_loader.load_resources(["example.feature", "file+textile://example.textile"])
       end
     end
             

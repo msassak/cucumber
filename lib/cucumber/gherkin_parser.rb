@@ -1,9 +1,17 @@
 require 'gherkin/parser/filter_listener'
 require 'gherkin/parser/parser'
 require 'gherkin/i18n_lexer'
+require 'cucumber/plugin'
 
 module Cucumber
   class GherkinParser
+    extend Cucumber::Plugin
+    register_parser(self)
+
+    def format
+      :gherkin
+    end
+
     # Parses a file and returns a Cucumber::Ast
     # If +options+ contains tags, the result will
     # be filtered.

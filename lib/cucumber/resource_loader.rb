@@ -11,7 +11,7 @@ module Cucumber
   class ResourceLoader
     class << self
       def registry
-        @registry ||= { :readers => [] }
+        @registry ||= { :readers => [], :parsers => [] }
       end
 
       def clear_registry
@@ -55,7 +55,8 @@ module Cucumber
       end
 
       content = reader_for(path).read(path)
-      Cucumber::GherkinParser.new.parse(content, path, lines, options)
+      #Cucumber::GherkinParser.new.parse(content, path, lines, options)
+      parser_for(path).parse(content, path, lines, options)
     end
 
     def reader_for(path)
@@ -78,6 +79,22 @@ module Cucumber
 
     def protocols
       readers.keys
+    end
+
+    def parser_for(path)
+      uri = URI.parse(URI.escape(path))
+      _, format = (uri.scheme || "file+gherkin").split('+')
+      parsers[format ? format.to_sym : :gherkin]
+    end
+
+    def parsers
+      return @parsers if @parsers
+      @parsers = {}
+      self.class.registry[:parsers].each do |parser_class|
+        parser = parser_class.new
+        @parsers[parser.format] = parser
+      end
+      @parsers
     end
 
     def expand_uris(uris)
