@@ -38,7 +38,7 @@ module Cucumber
       ResourceLoader.registry[:format_rules].clear
     end
         
-    describe "#load_resource" do
+    describe "loading resources" do
       it "splits the path from line numbers" do
         @file_loader.should_receive(:read).with("example.feature")
         @resource_loader.load_resource("example.feature:10:20")
@@ -59,16 +59,14 @@ module Cucumber
          @resource_loader.load_resource("accidentally://the.whole/thing.feature") 
         }.should raise_error(LoaderNotFound, /.*'accidentally'.*Services available:.*/)
       end
-    end
-        
-    describe "#load_resources" do
+
       it "loads features from multiple input sources" do
         @http_loader.should_receive(:read).with("http://test.domain/http.feature").once
         @file_loader.should_receive(:read).with("example.feature").once
         @resource_loader.load_resources(["example.feature", "http://test.domain/http.feature"])
       end
     end
-    
+        
     it "says what protocols it supports" do
       @resource_loader.protocols.should include(:http, :https, :file)
     end
