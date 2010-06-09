@@ -15,11 +15,8 @@ module Cucumber
       
       @textile_parser = mock('textile parser', :parse => mock('feature', :adverbs => [], :features= => true), :format => :textile)
       
-      @out = StringIO.new
-      @log = Logger.new(@out)
-
       @resource_loader = ResourceLoader.new
-      @resource_loader.log = @log
+      @resource_loader.log = Logger.new(StringIO.new)
       @resource_loader.options = mock('options', :filters => [])
     end
 
