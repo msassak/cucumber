@@ -96,16 +96,6 @@ module Cucumber
       @resource_loader.formats.should include(:gherkin)
     end
         
-    xit "should allow a format rule to override extension-based format determination" do
-      @textile_parser.should_receive(:parse).once
-      
-      register_format_rules({/\.txt$/ => :textile}) do
-        register_parser(@textile_parser) do
-          @resource_loader.load_feature("example.txt")
-        end
-      end
-    end
-        
     xit "should allow format rules to enable parsing features with the same extension in different formats" do
       @textile_parser.should_receive(:parse).once
       @gherkin_parser.should_receive(:parse).once
