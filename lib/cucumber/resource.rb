@@ -7,5 +7,9 @@ module Cucumber
     def path
       @uri
     end
+    
+    def lines
+      nil
+    end
   end
 end

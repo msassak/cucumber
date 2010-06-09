@@ -7,6 +7,7 @@ module Cucumber
     describe "a vanilla resource" do
       subject { Resource.new("example.feature") }
       its(:path) { should == "example.feature" }
+      its(:lines) { should be_nil }
     end
   end
 end
