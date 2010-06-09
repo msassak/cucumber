@@ -2,6 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 require 'cucumber/resource_loader'
 require 'cucumber/default_reader'
+require 'cucumber/gherkin_parser'
 
 module Cucumber
   describe ResourceLoader do
@@ -10,7 +11,7 @@ module Cucumber
       DefaultReader.stub!(:new).and_return(@default_reader)
 
       @gherkin_parser = mock('gherkin parser', :parse => mock('feature', :features= => true, :adverbs => []), :format => :treetop)
-      #Parsers::Treetop.stub!(:new).and_return(@gherkin_parser)
+      GherkinParser.stub!(:new).and_return(@gherkin_parser)
       
       @textile_parser = mock('textile parser', :parse => mock('feature', :adverbs => [], :features= => true), :format => :textile)
       
@@ -77,9 +78,9 @@ module Cucumber
       @resource_loader.load_feature("example.feature")
     end
     
-    xit "should default to the Gherkin format" do
+    it "defaults to the Gherkin parser" do
       @gherkin_parser.should_receive(:parse).once
-      @resource_loader.load_feature("jbehave.scenario")
+      @resource_loader.load_resource("jbehave.scenario")
     end
     
     xit "should assume the Gherkin format if there is no extension" do
