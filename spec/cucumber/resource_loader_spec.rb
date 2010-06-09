@@ -73,19 +73,14 @@ module Cucumber
       @resource_loader.protocols.should include(:http, :https, :file)
     end
     
-    xit "should parse a feature written in Gherkin" do
-      @gherkin_parser.should_receive(:parse).once
-      @resource_loader.load_feature("example.feature")
-    end
-    
     it "defaults to the Gherkin parser" do
       @gherkin_parser.should_receive(:parse).once
       @resource_loader.load_resource("jbehave.scenario")
     end
     
-    xit "should assume the Gherkin format if there is no extension" do
+    it "should assume the Gherkin format if there is no extension" do
       @gherkin_parser.should_receive(:parse).once
-      @resource_loader.load_feature("example")
+      @resource_loader.load_resource("example")
     end
     
     xit "should determine the feature format by the file extension" do
