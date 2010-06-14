@@ -3,15 +3,24 @@ require 'uri'
 module Cucumber
   class Resource
     RESOURCE_COLON_LINE_PATTERN = /^([\w\W]*?):([\d:]+)$/ #:nodoc:
+    SCHEME_PATTERN = /^([\w\W]+):\/\// #:nodoc:
 
-    attr_reader :uri
+    attr_reader :uri, :protocol, :format
 
     def initialize(uri)
+      @protocol, @format = extract_protocol_and_format(uri)
       @uri = URI.parse(URI.escape(uri))
     end
 
+    def extract_protocol_and_format(uri)
+      proto = fmt = nil
+      _, scheme = *SCHEME_PATTERN.match(uri)
+      proto, fmt = scheme.split('+').collect{|part| part.to_sym} if scheme
+      [proto || :file, fmt || :gherkin]
+    end
+
     def path
-      uri.to_s.gsub(/\+[\w\W]+:\/\//, '://').gsub(/(:\d+)+$/, '')
+      URI.unescape(uri.to_s.gsub(/\+[\w\W]+:\/\//, '://').gsub(/(:\d+)+$/, ''))
     end
     
     def lines
@@ -20,15 +29,6 @@ module Cucumber
         @lines = @lines.split(':').map { |line| line.to_i }
       end
       @lines
-    end
-
-    def format
-      _, format = (uri.scheme || "file+gherkin").split('+')
-      format ? format.to_sym : :gherkin
-    end
-
-    def protocol
-      (uri.scheme || "file").split("+")[0].to_sym
     end
   end
 end

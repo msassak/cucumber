@@ -25,26 +25,30 @@ module Cucumber
       block.call
       ResourceLoader.registry[:parsers].pop
     end
+
+    def resource(path)
+      Resource.new(path)
+    end
     
     describe "loading resources" do
       it "splits the path from line numbers" do
         @reader.should_receive(:read).with("example.feature")
-        @resource_loader.load_resource("example.feature:10:20")
+        @resource_loader.load_resource(resource("example.feature:10:20"))
       end
       
       it "reads a feature from a file" do
         @reader.should_receive(:read).with("example.feature").once
-        @resource_loader.load_resource("example.feature")
+        @resource_loader.load_resource(resource("example.feature"))
       end
 
       it "loads a feature from a file with spaces in the name" do
         @reader.should_receive(:read).with("features/spaces are nasty.feature").once
-        @resource_loader.load_resource("features/spaces are nasty.feature")
+        @resource_loader.load_resource(resource("features/spaces are nasty.feature"))
       end
 
       it "raises if it has no input service for the protocol" do
         lambda {
-         @resource_loader.load_resource("accidentally://the.whole/thing.feature") 
+         @resource_loader.load_resource(resource("accidentally://the.whole/thing.feature"))
         }.should raise_error(ReaderNotFound, /.*'accidentally'.*Protocols available:.*/)
       end
 
@@ -66,12 +70,12 @@ module Cucumber
     
     it "defaults to the Gherkin parser" do
       @gherkin_parser.should_receive(:parse).once
-      @resource_loader.load_resource("jbehave.scenario")
+      @resource_loader.load_resource(resource("jbehave.scenario"))
     end
     
     it "should assume the Gherkin format if there is no extension" do
       @gherkin_parser.should_receive(:parse).once
-      @resource_loader.load_resource("example")
+      @resource_loader.load_resource(resource("example"))
     end
     
     it "should determine the feature format by the URI scheme" do

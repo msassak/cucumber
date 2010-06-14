@@ -1,5 +1,5 @@
 require 'cucumber/formatter/duration'
-require 'uri'
+require 'cucumber/resource'
 
 module Cucumber
   class ReaderNotFound < StandardError
@@ -30,8 +30,6 @@ module Cucumber
     require 'cucumber/reader'
     require 'cucumber/gherkin_parser'
 
-    RESOURCE_COLON_LINE_PATTERN = /^([\w\W]*?):([\d:]+)$/ #:nodoc:
-
     include Formatter::Duration
     attr_accessor :log, :options
 
@@ -44,7 +42,7 @@ module Cucumber
         feature = load_resource(uri)
         if feature
           feature_suite.add_feature(feature)
-          log.debug("  * #{uri}\n")
+          log.debug("  * #{uri.path}\n")
         end
       end
       duration = Time.now - start
@@ -52,21 +50,12 @@ module Cucumber
       feature_suite
     end
     
-    def load_resource(uri)
-      _, path, lines = *RESOURCE_COLON_LINE_PATTERN.match(uri)
-      if path
-        lines = lines.split(':').map { |line| line.to_i }
-      else
-        path = uri
-      end
-
-      content = reader_for(path).read(path)
-      parser_for(path).parse(content, path, lines, options)
+    def load_resource(resource)
+      content = reader_for(resource.protocol).read(resource.path)
+      parser_for(resource.format).parse(content, resource.path, resource.lines, options)
     end
 
-    def reader_for(path)
-      uri = URI.parse(URI.escape(path))
-      proto = (uri.scheme || "file+gherkin").split('+')[0].to_sym
+    def reader_for(proto)
       readers[proto] || raise(ReaderNotFound.new(proto, protocols))
     end
 
@@ -86,10 +75,8 @@ module Cucumber
       readers.keys
     end
 
-    def parser_for(path)
-      uri = URI.parse(URI.escape(path))
-      _, format = (uri.scheme || "file+gherkin").split('+')
-      parsers[format ? format.to_sym : :gherkin] || raise(ParserNotFound.new(format, formats))
+    def parser_for(format)
+      parsers[format] || raise(ParserNotFound.new(format, formats))
     end
 
     def parsers
@@ -109,7 +96,8 @@ module Cucumber
     def expand_uris(uris)
       lists, singletons = uris.partition{ |res| res =~ /^@/ }
       lists.map! { |list| list.gsub(/^@/, '') }
-      singletons += lists.collect{ |list| reader_for(list).list(list) }.flatten
+      singletons += lists.collect{ |list| reader_for(Resource.new(list).protocol).list(list) }.flatten
+      singletons.collect { |uri| Resource.new(uri) }
     end
   end
 end

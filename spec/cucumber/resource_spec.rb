@@ -33,5 +33,15 @@ module Cucumber
       its(:format)   { should == :textile }
       its(:protocol) { should == :git }
     end
+
+    describe "a resource with spaces in the name" do
+      subject    { Resource.new("features/spaces are nasty.feature") }
+      its(:path) { should == "features/spaces are nasty.feature" }
+    end
+
+    it "parses a resource without a scheme and with line numbers" do
+      res = Resource.new("example.feature:10:20:110")
+      res.protocol.should == :file
+    end
   end
 end
