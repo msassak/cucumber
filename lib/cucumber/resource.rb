@@ -2,7 +2,7 @@ module Cucumber
   class Resource
     SCHEME_PATH_LINES_PATTERN = /([\w\W]+:\/\/)?([\w\W]+?)(:[\d:]+)?$/ #:nodoc:
 
-    attr_reader :protocol, :format, :path, :lines
+    attr_reader :protocol, :format, :lines
 
     def initialize(resource)
       _, scheme, @path, lines = *SCHEME_PATH_LINES_PATTERN.match(resource)
