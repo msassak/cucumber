@@ -96,7 +96,12 @@ module Cucumber
     def expand_uris(uris)
       lists, singletons = uris.partition{ |res| res =~ /^@/ }
       lists.map! { |list| list.gsub(/^@/, '') }
-      singletons += lists.collect{ |list| reader_for(Resource.new(list).protocol).list(list) }.flatten
+      
+      singletons += lists.collect do |list| 
+        resource = Resource.new(list)
+        reader_for(resource.protocol).list(resource.path)
+      end.flatten
+
       singletons.collect { |uri| Resource.new(uri) }
     end
   end
