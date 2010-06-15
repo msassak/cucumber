@@ -31,19 +31,9 @@ module Cucumber
     end
     
     describe "loading resources" do
-      it "splits the path from line numbers" do
-        @reader.should_receive(:read).with("example.feature")
-        @resource_loader.load_resource(resource("example.feature:10:20"))
-      end
-      
       it "reads a feature from a file" do
         @reader.should_receive(:read).with("example.feature").once
         @resource_loader.load_resource(resource("example.feature"))
-      end
-
-      it "loads a feature from a file with spaces in the name" do
-        @reader.should_receive(:read).with("features/spaces are nasty.feature").once
-        @resource_loader.load_resource(resource("features/spaces are nasty.feature"))
       end
 
       it "raises if it has no input service for the protocol" do
