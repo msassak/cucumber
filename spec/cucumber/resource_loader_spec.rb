@@ -79,6 +79,7 @@ module Cucumber
     end
     
     it "should determine the feature format by the URI scheme" do
+      pending "Pick up here"
       @textile_parser.should_receive(:parse).with(anything(), "file+textile://example.textile", anything(), anything()).once
       @gherkin_parser.should_receive(:parse).with(anything(), "example.feature", anything(), anything()).once
       
