@@ -22,9 +22,10 @@ module Cucumber
           @cli = Main.new(%w{--verbose example.feature}, @out)
           @cli.stub!(:require)
 
-          Cucumber::FeatureFile.stub!(:new).and_return(mock("feature file", :parse => @empty_feature))
+          resource_loader = Cucumber::ResourceLoader.new
+          resource_loader.stub(:load_resource => @empty_feature)
 
-          @cli.execute!(Cucumber::StepMother.new)
+          @cli.execute!(Cucumber::StepMother.new, resource_loader)
 
           @out.string.should include('example.feature')
         end
