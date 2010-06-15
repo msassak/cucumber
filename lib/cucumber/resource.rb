@@ -1,34 +1,38 @@
-require 'uri'
-
 module Cucumber
   class Resource
-    RESOURCE_COLON_LINE_PATTERN = /^([\w\W]*?):([\d:]+)$/ #:nodoc:
-    SCHEME_PATTERN = /^([\w\W]+):\/\// #:nodoc:
+    SCHEME_PATH_LINES_PATTERN = /([\w\W]+:\/\/)?([\w\W]+?)(:[\d:]+)?$/ #:nodoc:
 
-    attr_reader :uri, :protocol, :format
+    attr_reader :protocol, :format, :path, :lines
 
-    def initialize(uri)
-      @protocol, @format = extract_protocol_and_format(uri)
-      @uri = URI.parse(URI.escape(uri))
-    end
-
-    def extract_protocol_and_format(uri)
-      proto = fmt = nil
-      _, scheme = *SCHEME_PATTERN.match(uri)
-      proto, fmt = scheme.split('+').collect{|part| part.to_sym} if scheme
-      [proto || :file, fmt || :gherkin]
+    def initialize(resource)
+      _, scheme, @path, lines = *SCHEME_PATH_LINES_PATTERN.match(resource)
+      @protocol, @format = extract_protocol_and_format(scheme)
+      @lines = extract_lines(lines)
     end
 
     def path
-      URI.unescape(uri.to_s.gsub(/\+[\w\W]+:\/\//, '://').gsub(/(:\d+)+$/, ''))
-    end
-    
-    def lines
-      _, @path, @lines = *RESOURCE_COLON_LINE_PATTERN.match(uri.to_s)
-      if @path
-        @lines = @lines.split(':').map { |line| line.to_i }
+      if protocol == :file
+        @path
+      else
+        "#{protocol}://#{@path}"
       end
-      @lines
+    end
+
+    private
+
+    def extract_protocol_and_format(scheme)
+      proto = fmt = nil
+
+      if scheme
+        scheme = scheme.chomp('://')
+        proto, fmt = scheme.split('+').collect{|part| part.to_sym}
+      end
+
+      [proto || :file, fmt || :gherkin]
+    end
+
+    def extract_lines(lines)
+      lines ? lines.split(':')[1..-1].map{|n| n.to_i} : nil
     end
   end
 end
