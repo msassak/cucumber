@@ -23,11 +23,11 @@ module Cucumber
       def step_mother
         @step_mother ||= StepMother.new
       end
-      
+
       def load_features(content)
-        feature_file = FeatureFile.new('spec.feature', content)
+        parser = GherkinParser.new
         features = Ast::Features.new
-        feature = feature_file.parse(options)
+        feature = parser.parse(content, 'spec.feature', nil, options)
         features.add_feature(feature) if feature
         features
       end
