@@ -38,7 +38,7 @@ module Cucumber
       Resource.new("features/spaces are nasty.feature").path.should == "features/spaces are nasty.feature"
     end
     
-    it "sets the protocol correctly on a resource without a scheme and with line numbers" do
+    it "correctly sets the protocol on a resource without a scheme and with line numbers" do
       Resource.new("example.feature:10:20:110").protocol.should == :file
     end
   end
