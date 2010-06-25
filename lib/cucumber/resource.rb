@@ -11,10 +11,14 @@ module Cucumber
     end
 
     def path
+      "#{protocol}://#{@path}"
+    end
+
+    def to_s
       if protocol == :file
         @path
       else
-        "#{protocol}://#{@path}"
+        path
       end
     end
 

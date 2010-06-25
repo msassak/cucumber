@@ -6,10 +6,14 @@ module Cucumber
   describe Resource do
     describe "a vanilla file resource" do
       subject        { Resource.new("features/example.feature") }
-      its(:path)     { should == "features/example.feature" }
+      its(:path)     { should == "file://features/example.feature" }
       its(:lines)    { should be_nil }
       its(:format)   { should == :gherkin }
       its(:protocol) { should == :file }
+
+      it "displays in path format rather than URI" do
+        subject.to_s.should == "features/example.feature"
+      end
     end
 
     describe "a resource with protocol" do
@@ -35,7 +39,7 @@ module Cucumber
     end
 
     it "parses a resource with spaces in the name" do
-      Resource.new("features/spaces are nasty.feature").path.should == "features/spaces are nasty.feature"
+      Resource.new("features/spaces are nasty.feature").path.should == "file://features/spaces are nasty.feature"
     end
     
     it "correctly sets the protocol on a resource without a scheme and with line numbers" do

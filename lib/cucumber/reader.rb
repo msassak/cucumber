@@ -15,7 +15,7 @@ module Cucumber
         open(uri).read
       else
         begin
-          File.open(uri, Cucumber.file_mode('r')).read 
+          File.open(uri.gsub(/^file:\/\//, ''), Cucumber.file_mode('r')).read 
         rescue Errno::EACCES => e
           p = File.expand_path(uri)
           e.message << "\nCouldn't open #{p}"

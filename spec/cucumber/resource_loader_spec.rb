@@ -32,7 +32,7 @@ module Cucumber
     
     describe "loading resources" do
       it "reads a feature from a file" do
-        @reader.should_receive(:read).with("example.feature").once
+        @reader.should_receive(:read).with("file://example.feature").once
         @resource_loader.load_resource(resource("example.feature"))
       end
 
@@ -43,13 +43,13 @@ module Cucumber
       end
 
       it "loads features from multiple input sources" do
-        @reader.should_receive(:read).with("example.feature").ordered
+        @reader.should_receive(:read).with("file://example.feature").ordered
         @reader.should_receive(:read).with("http://test.domain/http.feature").ordered
         @resource_loader.load_resources(["example.feature", "http://test.domain/http.feature"])
       end
       
       it "retrieves resource names from a list" do
-        @reader.should_receive(:list).with("my_feature_list.txt").and_return(["features/foo.feature", "features/bar.feature"])
+        @reader.should_receive(:list).with("file://my_feature_list.txt").and_return(["features/foo.feature", "features/bar.feature"])
         @resource_loader.load_resources(["@my_feature_list.txt"])
       end
     end

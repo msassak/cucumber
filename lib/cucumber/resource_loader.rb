@@ -42,7 +42,7 @@ module Cucumber
         feature = load_resource(uri)
         if feature
           feature_suite.add_feature(feature)
-          log.debug("  * #{uri.path}\n")
+          log.debug("  * #{uri}\n")
         end
       end
       duration = Time.now - start
@@ -52,7 +52,7 @@ module Cucumber
     
     def load_resource(resource)
       content = reader_for(resource.protocol).read(resource.path)
-      parser_for(resource.format).parse(content, resource.path, resource.lines, options)
+      parser_for(resource.format).parse(content, resource.to_s, resource.lines, options)
     end
 
     def reader_for(proto)
