@@ -39,7 +39,7 @@ module Cucumber
       it "raises if it has no input service for the protocol" do
         lambda {
          @resource_loader.load_resource(resource("accidentally://the.whole/thing.feature"))
-        }.should raise_error(ReaderNotFound, /.*'accidentally'.*Protocols available:.*/)
+        }.should raise_error(PluginNotFound, /.*'accidentally'.*Protocols available:.*/)
       end
 
       it "loads features from multiple input sources" do
@@ -81,7 +81,7 @@ module Cucumber
     it "raises ParserNotFound if no parser exists for the format" do
       lambda do 
         @resource_loader.load_uris(["file+dne://example.feature"])
-      end.should raise_error(ParserNotFound)
+      end.should raise_error(PluginNotFound, /.*'dne'.*Formats available:.*/)
     end
        
     it "says what formats it can parse" do

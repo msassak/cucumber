@@ -2,18 +2,12 @@ require 'cucumber/formatter/duration'
 require 'cucumber/resource'
 
 module Cucumber
-  class ReaderNotFound < StandardError
-    def initialize(proto, available)
-      super "No reader service for the '#{proto}' protocol has been registered. Protocols available: #{available.join(', ')}."
+  class PluginNotFound < StandardError
+    def initialize(type, identifier, available)
+      super "No plugin for the '#{identifier}' #{type} has been registered. #{type.capitalize + "s"} available: #{available.join(', ')}."
     end
   end
 
-  class ParserNotFound < StandardError
-    def initialize(format, available)
-      super "No plugins service for the '#{format}' format has been registered. Formats available: #{available.join(', ')}."
-    end
-  end
- 
   class ResourceLoader
     class << self
       def registry
@@ -56,7 +50,7 @@ module Cucumber
     end
 
     def reader_for(proto)
-      readers[proto] || raise(ReaderNotFound.new(proto, protocols))
+      readers[proto] || raise(PluginNotFound.new("protocol", proto, protocols))
     end
 
     def readers
@@ -76,7 +70,7 @@ module Cucumber
     end
 
     def parser_for(format)
-      parsers[format] || raise(ParserNotFound.new(format, formats))
+      parsers[format] || raise(PluginNotFound.new("format", format, formats))
     end
 
     def parsers
