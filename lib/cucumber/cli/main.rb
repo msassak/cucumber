@@ -56,7 +56,7 @@ module Cucumber
         step_mother.load_code_files(configuration.support_to_load)
         step_mother.after_configuration(configuration)
 
-        features = resource_loader.load_resources(configuration.feature_files)
+        features = resource_loader.load_uris(configuration.feature_files)
 
         step_mother.load_code_files(configuration.step_defs_to_load)
 

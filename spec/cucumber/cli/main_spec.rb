@@ -76,7 +76,7 @@ module Cucumber
           # This is because i18n step methods are only aliased when
           # features are loaded. If we swap the order, the requires
           # will fail.
-          resource_loader.should_receive(:load_resources)
+          resource_loader.should_receive(:load_uris)
           step_mother.should_receive(:load_code_files).with(['step defs']).ordered
 
           cli.execute!(step_mother, resource_loader)

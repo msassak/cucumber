@@ -33,16 +33,16 @@ module Cucumber
     include Formatter::Duration
     attr_accessor :log, :options
 
-    def load_resources(resource_uris, feature_suite = Ast::Features.new)
-      all_uris = expand_uris(resource_uris)
+    def load_uris(uris, feature_suite = Ast::Features.new)
+      resources = convert_uris(uris)
       
       start = Time.new
       log.debug("Features:\n")
-      all_uris.each do |uri|
-        feature = load_resource(uri)
+      resources.each do |resource|
+        feature = load_resource(resource)
         if feature
           feature_suite.add_feature(feature)
-          log.debug("  * #{uri}\n")
+          log.debug("  * #{resource}\n")
         end
       end
       duration = Time.now - start
@@ -93,7 +93,7 @@ module Cucumber
       parsers.keys
     end
 
-    def expand_uris(uris)
+    def convert_uris(uris)
       lists, singletons = uris.partition{ |res| res =~ /^@/ }
       lists.map! { |list| list.gsub(/^@/, '') }
       

@@ -45,12 +45,12 @@ module Cucumber
       it "loads features from multiple input sources" do
         @reader.should_receive(:read).with("file://example.feature").ordered
         @reader.should_receive(:read).with("http://test.domain/http.feature").ordered
-        @resource_loader.load_resources(["example.feature", "http://test.domain/http.feature"])
+        @resource_loader.load_uris(["example.feature", "http://test.domain/http.feature"])
       end
       
       it "retrieves resource names from a list" do
         @reader.should_receive(:list).with("file://my_feature_list.txt").and_return(["features/foo.feature", "features/bar.feature"])
-        @resource_loader.load_resources(["@my_feature_list.txt"])
+        @resource_loader.load_uris(["@my_feature_list.txt"])
       end
     end
 
@@ -74,13 +74,13 @@ module Cucumber
       @gherkin_parser.should_receive(:parse).with(anything(), "example.feature", anything(), anything()).once
       
       register_parser(@textile_parser) do
-        @resource_loader.load_resources(["example.feature", "file+textile://example.textile"])
+        @resource_loader.load_uris(["example.feature", "file+textile://example.textile"])
       end
     end
 
     it "raises ParserNotFound if no parser exists for the format" do
       lambda do 
-        @resource_loader.load_resources(["file+dne://example.feature"])
+        @resource_loader.load_uris(["file+dne://example.feature"])
       end.should raise_error(ParserNotFound)
     end
        
